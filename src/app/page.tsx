@@ -9,6 +9,7 @@ export default async function Home({
   const me = await getCurrentUser();
   const isAuthed = !!me;
   const params = await searchParams;
+
   const errorParam =
     typeof params?.error === "string" ? params.error : undefined;
   const errorDescriptionParam =

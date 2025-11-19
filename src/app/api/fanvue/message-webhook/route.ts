@@ -49,27 +49,16 @@ export async function POST(req: NextRequest) {
     JSON.stringify(body, null, 2)
   );
 
-  // ⚠ Тестовият payload от Fanvue няма текст.
-  // При истинско DM ще има поле с текст – ще го донастроим,
-  // но за сега пробваме няколко възможни имена.
-  const text: string =
-    body?.message?.text ??
-    body?.content?.text ??
-    body?.text ??
-    "";
+  // Тук вече знаем, че текстът е в body.message.text
+  const text: string | undefined = body?.message?.text;
+  const senderUuid: string | undefined = body?.sender?.uuid;
 
-  const senderUuid: string =
-    body?.sender?.uuid ??
-    body?.fanUuid ??
-    body?.userId ??
-    "unknown";
-
-  if (!text) {
-    console.log("No text in message, skipping sendToBotpress");
-    return NextResponse.json({ ok: true, skipped: "no-text" });
+  if (!text || !senderUuid) {
+    console.log("Missing text or senderUuid, skipping sendToBotpress");
+    return NextResponse.json({ ok: true, skipped: "no-text-or-sender" });
   }
 
-  // Ще използваме един conversation за всеки фен:
+  // Един разговор на фен – използваме senderUuid
   const conversationId = `fanvue-${senderUuid}`;
   const userId = conversationId;
 

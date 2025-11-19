@@ -6,6 +6,12 @@ type BotpressWebhookBody = {
   conversationId?: string;
 };
 
+export async function GET() {
+  // Healthcheck за Botpress – важно е да върнем 200
+  console.log("Botpress webhook GET healthcheck");
+  return NextResponse.json({ ok: true });
+}
+
 export async function POST(req: NextRequest) {
   const body = (await req.json()) as BotpressWebhookBody;
 
@@ -27,7 +33,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Тук по-късно ще върнем текста обратно във Fanvue чрез Fanvue API.
+  // Тук по-късно ще изпращаме текста обратно във Fanvue.
   console.log("Should reply to Fanvue with:", { conversationId, text });
 
   return NextResponse.json({ ok: true });

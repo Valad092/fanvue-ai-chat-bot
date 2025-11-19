@@ -1,36 +1,27 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import type { ReactNode } from "react";
+import Script from "next/script";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
+export const metadata = {
   title: "Fanvue App Starter",
-  description: "Minimal Fanvue App example.",
-  icons: {
-    icon: "/logo192.png",
-  },
+  description: "Fanvue + Next.js starter",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body>
         {children}
+
+        {/* Botpress Webchat – чат балон за сайта */}
+        <Script
+          src="https://cdn.botpress.cloud/webchat/v3.3/inject.js"
+          strategy="afterInteractive"
+        />
+        <Script
+          src="https://files.bpcontent.cloud/2025/11/18/21/20251118215803-SOB3WGTA.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

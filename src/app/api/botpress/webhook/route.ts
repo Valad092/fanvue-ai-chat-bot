@@ -1,42 +1,29 @@
+// src/app/api/botpress/webhook/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
-type BotpressWebhookBody = {
-  type?: string;
-  payload?: any;
-  conversationId?: string;
-};
+const BOTPRESS_WEBHOOK_SECRET = process.env.BOTPRESS_WEBHOOK_SECRET ?? "";
 
+// Използва се от Botpress за "registration / healthcheck"
 export async function GET() {
-  // Healthcheck за Botpress – важно е да върнем 200
-  console.log("Botpress webhook GET healthcheck");
   return NextResponse.json({ ok: true });
 }
 
+// Тук Botpress ще праща отговорите на бота
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as BotpressWebhookBody;
-
-  console.log(
-    "Botpress webhook payload:",
-    JSON.stringify(body, null, 2)
-  );
-
-  const { conversationId, payload } = body;
-
-  const text: string | undefined =
-    typeof payload?.text === "string" ? payload.text : undefined;
-
-  if (!conversationId || !text) {
-    console.log("Missing conversationId or text in Botpress webhook");
-    return NextResponse.json({
-      ok: true,
-      skipped: "no-text-or-conversation",
-    });
+  // По желание: проверка на secret header-а
+  const secretHeader = req.headers.get("x-bp-secret");
+  if (BOTPRESS_WEBHOOK_SECRET && secretHeader !== BOTPRESS_WEBHOOK_SECRET) {
+    console.warn("Botpress webhook called with invalid secret");
+    return NextResponse.json({ ok: false }, { status: 401 });
   }
 
-  // Тук по-късно ще изпращаме текста обратно във Fanvue.
-  console.log("Should reply to Fanvue with:", { conversationId, text });
+  const body = await req.json().catch(() => null);
+
+  console.log("Botpress webhook payload:", JSON.stringify(body));
+
+  // ❗ Засега само логваме отговорите.
+  // Следващата стъпка ще е тук да викнем Fanvue API, за да изпратим
+  // текста обратно на фен-а.
 
   return NextResponse.json({ ok: true });
 }
-
-export const dynamic = "force-dynamic";
